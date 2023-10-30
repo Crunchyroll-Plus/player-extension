@@ -1,0 +1,32 @@
+{
+    "name": "CR+ Player",
+    "version": "0.0.1",
+    "description": "Add a few extra features to the video player.",
+    "manifest_version": 3,
+    "web_accessible_resources": [{
+        "resources": ["src/content_scripts/network/inject/index.js"],
+        "matches": ["*://*.crunchyroll.com/*"]
+    }],
+    "background": {
+        "scripts": ["src/background/server/index.js"]
+    },
+    "content_scripts": [
+        {
+            "matches": ["https://static.crunchyroll.com/vilos-v2/web/vilos/player.html*"],
+            "js": ["src/content_scripts/player/index.js"],
+            "all_frames": true
+        },
+        {
+            "matches": ["https://www.crunchyroll.com/*"],
+            "js": ["src/content_scripts/network/index.js"],
+            "run_at": "document_start"
+        }
+    ],
+    "permissions": [
+        "tabs",
+        "scripting"
+    ],
+    "host_permissions": [
+        "*://*.crunchyroll.com/*"
+    ]
+}
