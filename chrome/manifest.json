@@ -1,6 +1,6 @@
 {
     "name": "CR+ Player",
-    "version": "0.0.1",
+    "version": "0.0.5",
     "description": "Add a few extra features to the video player.",
     "manifest_version": 3,
     "web_accessible_resources": [{
