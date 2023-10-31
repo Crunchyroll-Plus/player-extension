@@ -1,6 +1,6 @@
 {
     "name": "CR+ Player",
-    "version": "0.0.1",
+    "version": "0.0.3",
     "description": "Add a few extra features to the video player.",
     "manifest_version": 3,
     "web_accessible_resources": [{
@@ -28,5 +28,14 @@
     ],
     "host_permissions": [
         "*://*.crunchyroll.com/*"
-    ]
+    ],
+    "action": {
+        "default_icon": "src/assets/icon.png"
+    },
+    "browser_specific_settings": {
+        "gecko": {
+          "id": "cr-plus-player@addon.com"
+        }
+      }
+      
 }
