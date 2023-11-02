@@ -1,11 +1,12 @@
 const __hooks = [];
 const __blocks = [];
-const __jsons = [];
 const __hookConfig = {};
 
 var ogOpen = XMLHttpRequest.prototype.open;
 var ogSend = XMLHttpRequest.prototype.send;
 var ogJson = Response.prototype.json;
+var ogBody = Response.prototype.text;
+
 
 Response.prototype.json = async function() {
     let result = await ogJson.apply(this, arguments);
@@ -20,6 +21,21 @@ Response.prototype.json = async function() {
         }
     });
 }
+
+Response.prototype.text = async function() {
+    let result = await ogBody.apply(this, arguments);
+    let found = __hooks.find(item => item.pattern.test(this.url));
+    result = found !== undefined ? found.callback.apply(this, [result]) : result;
+
+    return new Promise(function(resolve, reject) {
+        try {
+            resolve(result);
+        } catch (e) { 
+            reject(e);
+        }
+    });
+}
+
 
 XMLHttpRequest.prototype.open = function() {
     this.__url = arguments[1];
@@ -49,7 +65,6 @@ XMLHttpRequest.prototype.send = function() {
     let result = arguments[0];
     let found = __blocks.find(item => item.pattern.test(this.__url));
     result = found !== undefined && (found.method === undefined || found.method === arguments[0]) ? found.callback(result) : result;
-    // console.log(this.__url);
     if(result === true) return; // Block the request.
     arguments[0] = result;
 
@@ -75,11 +90,14 @@ window.onmessage = (event) => {
     __hookConfig[data.name] = data.value;
 };
 
+// Episode Information
 var episode_information = {}
 
-addBodyHook("https://www.crunchyroll.com/content/v2/cms/objects/(.+)?ratings=(.+)&locale=(.+)", (body) => {
-    if(!window.location.href.startsWith("https://www.crunchyroll.com/watch/")) return body;
+addBodyHook("https://www.crunchyroll.com/content/v2/cms/objects/(.+)", (body) => {
+    // if(!window.location.href.startsWith("https://www.crunchyroll.com/watch/")) return body;
     let obj = JSON.parse(body);
+
+    if(obj.data[0].episode_metadata === undefined) return body;
 
     episode_information.currentEpisode = obj.data[0]
 
@@ -89,14 +107,6 @@ addBodyHook("https://www.crunchyroll.com/content/v2/cms/objects/(.+)?ratings=(.+
             value: episode_information
         })
 
-    return body;
-})
-
-addBodyHook("https://static.crunchyroll.com/skip-events/production/(.+)", (body) => {
-    window.postMessage({
-        type: "skip_events",
-        value: body
-    })    
     return body;
 })
 
@@ -110,5 +120,28 @@ addBodyHook("https://www.crunchyroll.com/content/v2/discover/up_next/(.+)", (bod
             value: episode_information
         })
 
+    return body;
+})
+
+// Skip Events
+var skip_events = {};
+
+addBodyHook("https://static.crunchyroll.com/datalab-intro-v2/(.+)", (body) => {
+    return body;
+})
+
+addBodyHook("https://static.crunchyroll.com/skip-events/production/(.+)", (body) => {
+    skip_events = body;
+
+    window.postMessage({
+        type: "skip_events",
+        value: skip_events
+    })    
+    return body;
+})
+
+// Subtitles
+addBodyHook("https://v.vrv.co/evs3/(.+)/assets/(.+)", (body) => {
+    console.log(body);
     return body;
 })

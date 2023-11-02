@@ -1,5 +1,5 @@
-const ports = [];
-const message_history = [];
+var ports = [];
+var message_history = [];
 
 chrome.runtime.onConnect.addListener((port) => {    
     ports.push(port)
@@ -8,12 +8,14 @@ chrome.runtime.onConnect.addListener((port) => {
         port.postMessage(request)
     }
 
+    // message_history = [];
+
     port.onDisconnect.addListener(() => {
         ports.splice(ports.indexOf(port), 1);
     })
 
     port.onMessage.addListener(request => {
-        message_history.splice(0, 0, request);
+        message_history.push(request);
 
         for(let p of ports) {
             p.postMessage(request)
