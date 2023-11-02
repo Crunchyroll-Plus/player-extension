@@ -4,18 +4,31 @@ script.onload = function() {
     this.remove();
 };
 
-window.addEventListener("message", (event) => {
-    if(event.data.type === "visit") {
-        window.location.href = event.data.value;
-        return;
-    }
-    hook_port.postMessage(event.data);
-});
-
 (document.head || document.documentElement).appendChild(script);
+// var hook_port ;
 
-const hook_port = chrome.runtime.connect({name: "hook"});
-hook_port.onMessage.addListener(request => {
-    if(request.type !== "hook") return;
-    window.postMessage(request.value);
-});
+
+    var hook_port;
+
+    function connectPort() {
+        hook_port = chrome.runtime.connect({name: "hook"});
+        hook_port.onMessage.addListener(request => {
+            if(request.type !== "hook") return;
+            window.postMessage(request.value);
+        });
+    }   
+    
+    connectPort();
+
+    window.addEventListener("message", (event) => {
+        if(event.data.type === "visit") {
+            window.location.href = event.data.value;
+            return;
+        }
+
+        try {
+            hook_port.postMessage(event.data);
+        } catch(e) {
+            connectPort();
+        }
+    });
