@@ -1,6 +1,6 @@
 {
     "name": "CR+ Player",
-    "version": "0.0.5",
+    "version": "0.0.23",
     "description": "Add a few extra features to the video player.",
     "manifest_version": 3,
     "web_accessible_resources": [{
@@ -17,8 +17,9 @@
             "all_frames": true
         },
         {
-            "matches": ["https://www.crunchyroll.com/*"],
+            "matches": ["https://*.crunchyroll.com/*"],
             "js": ["src/content_scripts/network/index.js"],
+            "all_frames": true,
             "run_at": "document_start"
         }
     ],
