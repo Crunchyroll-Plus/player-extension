@@ -33,10 +33,11 @@ function createContainer() {
 }
 
 function onenter() {
+    // console.log(document.documentElement)
     try { port.disconnect(); } catch (e) {}
     port = chrome.runtime.connect({name: "player"});
     port.onMessage.addListener(portListener);
-    
+
     createContainer();
     skipEventsHandler();
 
@@ -132,17 +133,16 @@ function skipButton(title, end) {
     if(lastShown !== title) {
         setTimeout(() => {
             if(state === "open") return;
-            lastShown = undefined;
             container.remove();
             container = undefined;
         }, 1000);
     }
 
-    var img = document.createElement("img");
+    var skipIcon = document.createElement("img");
 
-    img.src = "data:image/svg+xml;utf8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2024%2024%22%3E%3Cg%20fill%3D%22none%22%20fill-rule%3D%22evenodd%22%3E%3Cg%20fill%3D%22%23FFF%22%3E%3Cg%3E%3Cg%3E%3Cg%3E%3Cpath%20d%3D%22M23%205v14h-2v-6.364L11%2019V5l10%206.364V5h2z%22%20transform%3D%22translate(-153%20-905)%20translate(120%20881)%20translate(17%2016)%20translate(16%208)%22%3E%3C%2Fpath%3E%3Cpath%20d%3D%22M1%205L1%2019%2012%2012z%22%20transform%3D%22translate(-153%20-905)%20translate(120%20881)%20translate(17%2016)%20translate(16%208)%22%3E%3C%2Fpath%3E%3C%2Fg%3E%3C%2Fg%3E%3C%2Fg%3E%3C%2Fg%3E%3C%2Fg%3E%3C%2Fsvg%3E";
-    img.style.width = "24px";
-    img.style.height = "24px";
+    skipIcon.src = "data:image/svg+xml;utf8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2024%2024%22%3E%3Cg%20fill%3D%22none%22%20fill-rule%3D%22evenodd%22%3E%3Cg%20fill%3D%22%23FFF%22%3E%3Cg%3E%3Cg%3E%3Cg%3E%3Cpath%20d%3D%22M23%205v14h-2v-6.364L11%2019V5l10%206.364V5h2z%22%20transform%3D%22translate(-153%20-905)%20translate(120%20881)%20translate(17%2016)%20translate(16%208)%22%3E%3C%2Fpath%3E%3Cpath%20d%3D%22M1%205L1%2019%2012%2012z%22%20transform%3D%22translate(-153%20-905)%20translate(120%20881)%20translate(17%2016)%20translate(16%208)%22%3E%3C%2Fpath%3E%3C%2Fg%3E%3C%2Fg%3E%3C%2Fg%3E%3C%2Fg%3E%3C%2Fg%3E%3C%2Fsvg%3E";
+    skipIcon.style.width = "24px";
+    skipIcon.style.height = "24px";
 
     btn = document.createElement("div");
     btn.className = "skipEventButton";
@@ -171,7 +171,7 @@ function skipButton(title, end) {
     text.style.marginLeft = "8px";
     text.innerText = `SKIP ${title.toUpperCase()}`;
 
-    btn.appendChild(img);
+    btn.appendChild(skipIcon);
     btn.appendChild(text);
 
     btn.addEventListener("click", function() {
@@ -179,7 +179,8 @@ function skipButton(title, end) {
         video.currentTime = end;
 
         setTimeout(() => {
-            video.play()
+            if(!video.paused)
+                video.play();
             lastShown = undefined;
         }, 100);
 

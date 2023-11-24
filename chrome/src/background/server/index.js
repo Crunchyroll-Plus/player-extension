@@ -22,3 +22,5 @@ chrome.runtime.onConnect.addListener((port) => {
         }
     })
 });
+
+export default true;
